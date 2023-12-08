@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>All Posts</title>
+</head>
+<body>
+
+<h1>All Posts</h1>
+
+<div sec:authorize="!isAuthenticated()">
+    <a th:href="@{/authentication/login}">Log in</a>
+</div>
+
+<hr>
+
+<div sec:authorize="isAuthenticated()">
+    <a th:href="@{/create}">Create a New Post</a>
+</div>
+
+<br>
+
+<form action="#" th:action="@{/}" method="get">
+    <input type="text" name="title" placeholder="Search by title"/>
+    <input type="text" name="topic" placeholder="Search by topic"/>
+    <button type="submit">Search</button>
+</form>
+
+<div th:if="${posts.empty}">
+    <p>No posts available.</p>
+</div>
+
+<div th:unless="${posts.empty}">
+    <ul>
+        <li th:each="post : ${posts}">
+            <hr>
+            <h2><a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">Post Title</a></h2>
+            <h3><p th:text="${post.topic}">Topic</p></h3>
+            <p th:text="${#strings.abbreviate(post.content, 70)}">Post content preview</p>
+        </li>
+    </ul>
+</div>
+
+</body>
+</html>

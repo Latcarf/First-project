@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${post.title}">Post Title</title>
+</head>
+<body>
+
+<h1 th:text="${post.title}">Post Title</h1>
+<h2><p th:text="${post.topic}">Post Topic</p></h2>
+<p th:text="${post.content}">Post Content</p>
+
+<a th:href="@{/}">Back to all posts</a>
+
+</body>
+</html>

@@ -1,40 +1,48 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Latcarf</title>
+    <title>My account</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
+
 </head>
 <body>
 
-<h1>Latcarf</h1>
+<h1>My account</h1>
+<h4><p>On Latcarf since: <span th:text="${#temporals.format(user.createdDate, 'dd-MM-yyyy')}"></span></p></h4>
 
-<div sec:authorize="!isAuthenticated()">
-    <form th:action="@{/login}" method="get">
-        <button type="submit">Login</button>
-    </form>
-    <hr>
-</div>
+<p>Name: <span th:text="${user.name}"></span></p>
+<p>Email: <span th:text="${user.email}"></span></p>
+<p>Gender: <span th:text="${user.gender}"></span></p>
+<p>Subscribers: <span th:text="${user.subscribers}"></span></p>
 
-
-<div sec:authorize="isAuthenticated()">
-    <form th:action="@{/account}" method="get">
-        <button type="submit">My account</button>
-    </form>
-    <hr>
-</div>
-
-<h1>All Posts</h1>
-
+<hr>
+<form th:action="@{/create}" method="get">
+    <button type="submit">Create a New Post</button>
+</form>
+<hr>
 
 <form th:action="@{/}" method="get">
+    <button type="submit">Back to all posts</button>
+</form>
+<hr>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Logout</button>
+</form>
+<hr>
+
+<form th:action="@{/delete/user}" method="get">
+    <button type="submit">Delete account</button>
+</form>
+<hr>
+
+
+<h1>My posts</h1>
+
+<form th:action="@{/filter/account/{userId}(userId=${user.id})}" method="get">
     <h4>Filters</h4>
 
     <input type="text" name="title" placeholder="Search by title" th:value="${searchTitle}"/>
-
-    <br>
-    <br>
-
-    <input type="text" name="userName" placeholder="Search by author" th:value="${searchUserName}"/>
 
     <br>
     <br>
@@ -62,7 +70,6 @@
     <button type="submit">Search</button>
 </form>
 
-
 <ul>
     <li th:each="post : ${posts}">
         <hr>
@@ -70,19 +77,14 @@
         <h5>
             <p><span class="timeago" th:attr="datetime=${post.createdDateTime}"></span></p>
 
-            <p>Author
-                <a th:if="${post.user.email == currentUserEmail}" th:href="@{/account}"
-                   th:text="${post.user.name}"></a>
-                <a th:if="${post.user.email != currentUserEmail}" th:href="@{/user/{id}(id=${post.user.id})}"
-                   th:text="${post.user.name}"></a></p>
-
             <p>Topic: <span th:text="${post.topic}">Topic</span></p>
         </h5>
         <h4><p th:text="${#strings.abbreviate(post.content, 70)}">Post content preview</p></h4>
     </li>
 </ul>
+
 <div th:if="${posts.empty}">
-    <p>No posts available.</p>
+    <p>You have no posts.</p>
 </div>
 
 <script>

@@ -17,15 +17,18 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/", "/**", "/authentication/**", "/posts/view").permitAll()
+                        .requestMatchers("/register", "/", "/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form
-                        .loginPage("/authentication/login")
+                        .loginPage("/login")
                         .defaultSuccessUrl("/", true)
                         .permitAll()
                 )
-                .logout(LogoutConfigurer::permitAll);
+                .logout((logout) -> logout
+                        .logoutSuccessUrl("/")
+                        .permitAll()
+                );
 
         return http.build();
     }

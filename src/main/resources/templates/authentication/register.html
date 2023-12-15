@@ -6,7 +6,7 @@
 
 <body>
 
-<form th:action="@{/authentication/register}" method="post" th:object="${user}" novalidate >
+<form th:action="@{/register}" method="post" th:object="${user}" novalidate >
     <!-- Name Input -->
     <input type="text" name="name" required placeholder="Name" th:field="*{name}">
     <div th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
@@ -38,6 +38,11 @@
 
     <!-- Submit Button -->
     <button type="submit">Register</button>
+</form>
+
+<hr>
+<form th:action="@{/login}" method="get">
+    <button type="submit">Login</button>
 </form>
 
 </body>

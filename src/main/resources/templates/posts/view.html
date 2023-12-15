@@ -1,15 +1,39 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <title th:text="${post.title}">Post Title</title>
 </head>
 <body>
 
-<h1 th:text="${post.title}">Post Title</h1>
-<h2><p th:text="${post.topic}">Post Topic</p></h2>
-<p th:text="${post.content}">Post Content</p>
 
-<a th:href="@{/}">Back to all posts</a>
+<h1 th:text="${post.title}">Post Title</h1>
+<h5>
+    <p>The post was created: <span th:text="${#temporals.format(post.createdDateTime, 'dd-MM-yyyy HH:mm')}"></span></p>
+
+    <p>Author
+        <a th:if="${isOwner}" th:href="@{/account}" th:text="${post.user.name}"></a>
+        <a th:if="${!isOwner}" th:href="@{/user/{id}(id=${post.user.id})}" th:text="${post.user.name}"></a></p>
+
+    <p>Topic: <span th:text="${post.topic}">Topic</span></p>
+</h5>
+<h4><p th:text="${post.content}">Post Content</p></h4>
+
+<div th:if="${isOwner}">
+    <hr>
+    <form th:action="@{/edit/{id}(id=${post.id})}" method="get">
+        <button type="submit">Edit</button>
+    </form>
+    <hr>
+
+    <form th:action="@{/delete/post/{id}(id=${post.id})}" method="post">
+        <button type="submit">Delete</button>
+    </form>
+</div>
+
+<hr>
+<form th:action="@{/}" method="get">
+    <button type="submit">Back to all posts</button>
+</form>
 
 </body>
 </html>

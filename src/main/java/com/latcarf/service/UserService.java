@@ -2,12 +2,14 @@ package com.latcarf.service;
 
 import com.latcarf.model.User;
 import com.latcarf.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -16,45 +18,31 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void createUser(String name, String gender, String email, String rawPassword) {
-        validateUser(name, gender, email, rawPassword);
 
-        String hashedPassword = passwordEncoder.encode(rawPassword);
-        User newUser = new User();
-        newUser.setName(name);
-        newUser.setGender(gender);
-        newUser.setEmail(email);
-        newUser.setPassword(hashedPassword);
-
-        userRepository.save(newUser);
+    public User getUserById(Long id) {
+        return userRepository.findUserById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 
-    private void validateUser(String name, String gender, String email, String password) {
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
 
-        if (name == null || name.length() < 3) {
-            throw new IllegalArgumentException("error.name");
-        } else if (name.contains(" ")) {
-            throw new IllegalArgumentException("error.name.space");
-        }
+    public void validateUserCredentials(User user) {
 
-        if (gender == null) {
-            throw new IllegalArgumentException("error.gender.empty");
-        }
-
-        if (email == null || !email.contains("@")) {
+        Optional<User> existingUserOpt = getUserByEmail(user.getEmail());
+        if (existingUserOpt.isEmpty()) {
             throw new IllegalArgumentException("error.email");
-        } else if (email.contains(" ")) {
-            throw new IllegalArgumentException("error.email.space");
         }
 
-        if (password == null || password.length() < 6) {
-            throw new IllegalArgumentException("error.password.length");
-        } else if (password.contains(" ")) {
-            throw new IllegalArgumentException("error.password.space");
+        User existingUser = existingUserOpt.get();
+        if (!passwordEncoder.matches(user.getPassword(), existingUser.getPassword())) {
+            throw new IllegalArgumentException("error.password");
         }
     }
-
 
 }
-

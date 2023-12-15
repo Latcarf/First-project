@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,6 +32,10 @@ public class User implements UserDetails {
 
     private Integer subscribers;
 
+    private Integer subscriptions;
+
+    private LocalDate createdDate;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 
@@ -48,7 +53,6 @@ public class User implements UserDetails {
     public int getNumberOfPosts() {
         return posts != null ? posts.size() : 0;
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -78,5 +82,10 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        createdDate = LocalDate.now();
     }
 }

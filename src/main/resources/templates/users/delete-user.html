@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<head>
+    <title>Delete Account</title>
+</head>
+<body>
+
+<h1>Delete Account</h1>
+
+<form th:action="@{/delete/user}" method="post" th:object="${user}" novalidate>
+    <input type="hidden" name="id" th:value="${user.id}"/>
+
+    <input type="email" th:field="*{email}" required placeholder="Email"/>
+    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+    <br>
+
+    <input type="password" th:field="*{password}" required placeholder="Password"/>
+    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+    <br>
+
+    <button type="submit">Delete</button>
+</form>
+
+</body>
+</html>

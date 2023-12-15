@@ -1,17 +1,22 @@
 package com.latcarf.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "post")
+@Table(name = "posts")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Post {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -20,7 +25,14 @@ public class Post {
 
     private String content;
 
+    private LocalDateTime createdDateTime;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn
     private User user;
+
+    @PrePersist
+    protected void onCreate() {
+        createdDateTime = LocalDateTime.now();
+    }
 }

@@ -1,4 +1,4 @@
-package com.latcarf.repository;
+package com.latcarf.repository.postsRepository;
 
 import com.latcarf.model.Post;
 import com.latcarf.model.User;
@@ -10,5 +10,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificationExecutor<Post> {
-    User findUserByUser_Id(Long id);
+    List<Post> findAllByUserId(Long id);
 }

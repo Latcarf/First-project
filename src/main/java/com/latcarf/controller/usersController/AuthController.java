@@ -1,7 +1,9 @@
-package com.latcarf.controller;
+package com.latcarf.controller.usersController;
 
 import com.latcarf.model.User;
-import com.latcarf.service.UserAuthenticationService;
+import com.latcarf.service.users.UserAuthenticationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +22,7 @@ public class AuthController {
             "Vecna", "Genderfluid", "Agender",
             "Demogorgon", "Two-Spirit", "Sandwich");
     final private UserAuthenticationService userAuthenticationService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     public AuthController(UserAuthenticationService userAuthenticationService) {
         this.userAuthenticationService = userAuthenticationService;
@@ -42,12 +45,17 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute User user, Model model, BindingResult bindingResult) {
+        logger.info("Attempting to register new user: {}", user.getEmail());
+
         if (bindingResult.hasErrors()) {
             return "authentication/register";
         }
         try {
             userAuthenticationService.createUser(user);
+            logger.info("User registered successfully: {}", user.getEmail());
         } catch (IllegalArgumentException e) {
+            logger.error("Error registering user: {}", e.getMessage());
+
             errorValidation(e.getMessage(), bindingResult);
 
             model.addAttribute("gender", gendersList);
@@ -57,6 +65,8 @@ public class AuthController {
     }
 
     private void errorValidation(String message, BindingResult bindingResult) {
+        logger.warn("Validation error: {}", message);
+
         if ("error.name.busy".equals(message)) {
             bindingResult.rejectValue("name", "error.user", "A user with this name already exists.");
         } else if ("error.name".equals(message)) {

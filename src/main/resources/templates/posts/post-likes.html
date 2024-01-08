@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All likes</title>
+</head>
+<body>
+
+<form th:action="@{/}" method="get">
+    <button type="submit">Back to all posts</button>
+</form>
+
+<h1>All the people who liked it</h1>
+<hr>
+
+<ul>
+    <li th:each="user : ${allUserLikes}">
+        <h3> <a th:href="@{/user/{id}(id=${user.id})}" th:text="${user.name}"></a> </h3>
+        <hr>
+    </li>
+</ul>
+
+<div th:if="${allUserLikes.empty}">
+    <h3>No one has ever liked this.</h3>
+</div>
+
+</body>
+</html>

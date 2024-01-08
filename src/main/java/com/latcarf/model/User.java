@@ -1,5 +1,7 @@
 package com.latcarf.model;
 
+import com.latcarf.model.likeModels.PostDislike;
+import com.latcarf.model.likeModels.PostLike;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,6 +41,11 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> posts;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> likes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostDislike> dislikes;
 
     public void addPost(Post post) {
         posts.add(post);

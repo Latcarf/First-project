@@ -1,8 +1,11 @@
-package com.latcarf.controller;
+package com.latcarf.controller.postsController;
 
+import com.latcarf.model.DTO.PostDTO;
 import com.latcarf.model.Post;
 import com.latcarf.model.User;
-import com.latcarf.service.PostService;
+import com.latcarf.service.posts.PostService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +24,8 @@ public class PostController {
 
     private final List<String> topicsList = Arrays.asList("IT", "Study", "Sports", "Since", "History", "Cinema", "Stories", "Games", "Other");
     private final PostService postService;
+    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+
 
     public PostController(PostService postService) {
         this.postService = postService;
@@ -33,44 +38,47 @@ public class PostController {
                             @RequestParam(required = false) String orderByDate,
                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
                             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                            @RequestParam(required = false) String sortByLikesOrDislikes,
                             Model model, Principal principal) {
 
         model.addAttribute("currentUserEmail", principal != null ? principal.getName() : null);
-        configurePostFiltering(title, userName, topic, orderByDate, startDate, endDate, model);
+        configurePostFiltering(title, userName, topic, orderByDate, startDate, endDate, sortByLikesOrDislikes, model);
 
         return "posts/index";
     }
 
     @GetMapping("/filter/userInfo/{userId}")
     public String filterUserPosts(@PathVariable Long userId,
-                                     @RequestParam(required = false) String title,
-                                     @RequestParam(required = false) String topic,
-                                     @RequestParam(required = false) String orderByDate,
-                                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-                                     @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-                                     Model model) {
+                                  @RequestParam(required = false) String title,
+                                  @RequestParam(required = false) String topic,
+                                  @RequestParam(required = false) String orderByDate,
+                                  @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                  @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                                  @RequestParam(required = false) String sortByLikesOrDislikes,
+                                  Model model) {
 
         User user = postService.getUserById(userId);
 
         model.addAttribute("user", user);
-        configurePostFiltering(title, user.getName(), topic, orderByDate, startDate, endDate, model);
+        configurePostFiltering(title, user.getName(), topic, orderByDate, startDate, endDate, sortByLikesOrDislikes, model);
 
         return "users/user-info";
     }
 
     @GetMapping("/filter/account/{userId}")
     public String filterMyAccountPosts(@PathVariable Long userId,
-                                          @RequestParam(required = false) String title,
-                                          @RequestParam(required = false) String topic,
-                                          @RequestParam(required = false) String orderByDate,
-                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
-                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
-                                          Model model) {
+                                       @RequestParam(required = false) String title,
+                                       @RequestParam(required = false) String topic,
+                                       @RequestParam(required = false) String orderByDate,
+                                       @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+                                       @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate,
+                                       @RequestParam(required = false) String sortByLikesOrDislikes,
+                                       Model model) {
 
         User user = postService.getUserById(userId);
 
         model.addAttribute("user", user);
-        configurePostFiltering(title, user.getName(), topic, orderByDate, startDate, endDate, model);
+        configurePostFiltering(title, user.getName(), topic, orderByDate, startDate, endDate, sortByLikesOrDislikes, model);
 
         return "users/user-account";
     }
@@ -84,6 +92,7 @@ public class PostController {
 
     @PostMapping("/create")
     public String createPost(@ModelAttribute Post post, BindingResult bindingResult, Model model, Principal principal) {
+        logger.info("Attempting to create post by user: {}", principal.getName());
         try {
             postService.createPost(post, principal);
         } catch (IllegalArgumentException e) {
@@ -97,19 +106,20 @@ public class PostController {
 
     @GetMapping("/posts/{id}")
     public String viewPost(@PathVariable Long id, Model model, Principal principal) {
-        Post post = postService.getPostById(id);
+        PostDTO postDto = postService.getPostDtoById(id);
         boolean isOwner = principal != null && postService.isOwner(id, principal.getName());
 
-        model.addAttribute("post", post);
+        model.addAttribute("post", postDto);
         model.addAttribute("isOwner", isOwner);
         return "posts/view";
     }
 
     @GetMapping("edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model, Principal principal) {
-        Post post = postService.getPostById(id);
+        PostDTO postDto = postService.getPostDtoById(id);
+
         if (postService.isOwner(id, principal.getName())) {
-            model.addAttribute("post", post);
+            model.addAttribute("post", postDto);
             model.addAttribute("topics", topicsList);
             return "posts/edit";
         } else {
@@ -140,13 +150,13 @@ public class PostController {
         return "redirect:/";
     }
 
-    private void configurePostFiltering(String title, String userName, String topic, String orderByDate, LocalDate startDate, LocalDate endDate, Model model) {
+    private void configurePostFiltering(String title, String userName, String topic, String orderByDate, LocalDate startDate, LocalDate endDate,String sortByLikesOrDislikes, Model model) {
         LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
 
-        List<Post> posts = postService.searchPosts(title, userName, topic, orderByDate, startDateTime, endDateTime);
+        List<PostDTO> postDto = postService.searchPosts(title, userName, topic, orderByDate, startDateTime, endDateTime, sortByLikesOrDislikes);
 
-        model.addAttribute("posts", posts);
+        model.addAttribute("posts", postDto);
         model.addAttribute("topics", topicsList);
 
         model.addAttribute("searchTitle", title);
@@ -154,10 +164,12 @@ public class PostController {
         model.addAttribute("searchStartDate", startDate);
         model.addAttribute("searchEndDate", endDate);
         model.addAttribute("orderByDate", orderByDate);
-
+        model.addAttribute("sortByLikesOrDislikes", sortByLikesOrDislikes);
     }
 
     private void errorValidation(String message, BindingResult bindingResult) {
+        logger.warn("Validation error: {}", message);
+
         if ("error.title.empty".equals(message)) {
             bindingResult.rejectValue("title", "error.title.empty", "The title of the post cannot be empty.");
 

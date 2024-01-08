@@ -1,4 +1,4 @@
-package com.latcarf.specification;
+package com.latcarf.service.posts.specification;
 
 import com.latcarf.model.User;
 import jakarta.persistence.criteria.Join;

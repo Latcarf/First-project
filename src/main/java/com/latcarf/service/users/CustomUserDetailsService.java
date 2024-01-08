@@ -1,4 +1,4 @@
-package com.latcarf.service;
+package com.latcarf.service.users;
 
 import com.latcarf.model.User;
 import com.latcarf.repository.UserRepository;

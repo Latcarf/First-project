@@ -1,9 +1,10 @@
-package com.latcarf.controller.postsController;
+package com.latcarf.controller.posts;
 
-import com.latcarf.model.DTO.PostDTO;
+import com.latcarf.dto.PostDTO;
 import com.latcarf.model.Post;
 import com.latcarf.model.User;
 import com.latcarf.service.posts.PostService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,19 +18,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @RequestMapping
+@Slf4j
 public class PostController {
 
     private final List<String> topicsList = Arrays.asList("IT", "Study", "Sports", "Since", "History", "Cinema", "Stories", "Games", "Other");
     private final PostService postService;
-    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
-
 
     public PostController(PostService postService) {
         this.postService = postService;
     }
+
 
     @GetMapping("/")
     public String mainPosts(@RequestParam(required = false) String title,
@@ -41,7 +43,8 @@ public class PostController {
                             @RequestParam(required = false) String sortByLikesOrDislikes,
                             Model model, Principal principal) {
 
-        model.addAttribute("currentUserEmail", principal != null ? principal.getName() : null);
+
+        model.addAttribute("currentUserEmail", Objects.nonNull(principal) ? principal.getName() : null);
         configurePostFiltering(title, userName, topic, orderByDate, startDate, endDate, sortByLikesOrDislikes, model);
 
         return "posts/index";
@@ -92,7 +95,7 @@ public class PostController {
 
     @PostMapping("/create")
     public String createPost(@ModelAttribute Post post, BindingResult bindingResult, Model model, Principal principal) {
-        logger.info("Attempting to create post by user: {}", principal.getName());
+        log.info("Attempting to create post by user: {}", principal.getName());
         try {
             postService.createPost(post, principal);
         } catch (IllegalArgumentException e) {
@@ -107,7 +110,7 @@ public class PostController {
     @GetMapping("/posts/{id}")
     public String viewPost(@PathVariable Long id, Model model, Principal principal) {
         PostDTO postDto = postService.getPostDtoById(id);
-        boolean isOwner = principal != null && postService.isOwner(id, principal.getName());
+        boolean isOwner = Objects.nonNull(principal) && postService.isOwner(id, principal.getName());
 
         model.addAttribute("post", postDto);
         model.addAttribute("isOwner", isOwner);
@@ -151,8 +154,8 @@ public class PostController {
     }
 
     private void configurePostFiltering(String title, String userName, String topic, String orderByDate, LocalDate startDate, LocalDate endDate,String sortByLikesOrDislikes, Model model) {
-        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : null;
-        LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : null;
+        LocalDateTime startDateTime = Objects.nonNull(startDate) ? startDate.atStartOfDay() : null;
+        LocalDateTime endDateTime = Objects.nonNull(endDate) ? endDate.atTime(23, 59, 59) : null;
 
         List<PostDTO> postDto = postService.searchPosts(title, userName, topic, orderByDate, startDateTime, endDateTime, sortByLikesOrDislikes);
 
@@ -168,7 +171,7 @@ public class PostController {
     }
 
     private void errorValidation(String message, BindingResult bindingResult) {
-        logger.warn("Validation error: {}", message);
+        log.warn("Validation error: {}", message);
 
         if ("error.title.empty".equals(message)) {
             bindingResult.rejectValue("title", "error.title.empty", "The title of the post cannot be empty.");

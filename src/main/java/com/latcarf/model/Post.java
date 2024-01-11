@@ -1,12 +1,10 @@
 package com.latcarf.model;
 
-import com.latcarf.model.likeModels.PostDislike;
-import com.latcarf.model.likeModels.PostLike;
+import com.latcarf.model.reaction.PostReaction;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,10 +33,10 @@ public class Post {
     private User user;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostLike>  likes;
+    private List<PostReaction>  reactions;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostDislike> dislikes;
+    private List<Comment> comments;
 
     @PrePersist
     protected void onCreate() {

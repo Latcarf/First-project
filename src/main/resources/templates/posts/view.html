@@ -18,7 +18,7 @@
 
     <p>Topic: <span th:text="${post.topic}">Topic</span></p>
 </h5>
-<h4><p th:text="${post.content}">Post Content</p></h4>
+<h3><p th:text="${post.content}">Post Content</p></h3>
 
 <button class="like-btn" th:data-post-id="${post.id}">👍🏿</button>
 <a style="margin-right: 20px;" th:href="@{view-likes/post/{id}(id=${post.id})}">
@@ -46,7 +46,7 @@
 </form>
 
 
-<script src="/js/like-dislike-button.js"></script>
+<script src="/js/reaction-button.js"></script>
 
 </body>
 </html>

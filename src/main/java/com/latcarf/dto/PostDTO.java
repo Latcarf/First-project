@@ -1,7 +1,6 @@
-package com.latcarf.model.DTO;
+package com.latcarf.dto;
 
 import com.latcarf.model.Post;
-import com.latcarf.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

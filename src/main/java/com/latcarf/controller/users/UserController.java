@@ -1,10 +1,11 @@
-package com.latcarf.controller.usersController;
+package com.latcarf.controller.users;
 
-import com.latcarf.model.DTO.UserDTO;
+import com.latcarf.dto.UserDTO;
 import com.latcarf.model.User;
 import com.latcarf.service.users.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -20,13 +21,14 @@ import java.security.Principal;
 import java.util.Optional;
 
 @Controller
+@Slf4j
 public class UserController {
     private final UserService userService;
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
 
     @GetMapping("/user/{id}")
     public String userInfo(@PathVariable Long id, Model model) {
@@ -63,7 +65,7 @@ public class UserController {
 
     @PostMapping("/delete/user")
     public String deleteAccount(@ModelAttribute("user") User user, BindingResult bindingResult, HttpServletRequest request, HttpServletResponse response) {
-        logger.info("Attempting to delete user with email: {}", user.getEmail());
+        log.info("Attempting to delete user with email: {}", user.getEmail());
 
         if (bindingResult.hasErrors()) {
             return "users/delete-user";
@@ -73,10 +75,10 @@ public class UserController {
             userService.deleteUser(user.getId());
             new SecurityContextLogoutHandler().logout(request, response, null);
 
-            logger.info("User deleted successfully: {}", user.getEmail());
+            log.info("User deleted successfully: {}", user.getEmail());
             return "redirect:/";
         } catch (IllegalArgumentException e) {
-            logger.error("Error deleting user: {}", e.getMessage());
+            log.error("Error deleting user: {}", e.getMessage());
 
             errorValidation(e.getMessage(), bindingResult);
             return "users/delete-user";
@@ -84,7 +86,7 @@ public class UserController {
     }
 
     private void errorValidation(String message, BindingResult bindingResult) {
-        logger.warn("Validation error: {}", message);
+        log.warn("Validation error: {}", message);
 
         if ("error.email".equals(message)) {
             bindingResult.rejectValue("email", "error.user", "Wrong email.");

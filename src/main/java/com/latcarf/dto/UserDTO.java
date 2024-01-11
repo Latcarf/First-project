@@ -1,4 +1,4 @@
-package com.latcarf.model.DTO;
+package com.latcarf.dto;
 
 import com.latcarf.model.User;
 import lombok.AllArgsConstructor;

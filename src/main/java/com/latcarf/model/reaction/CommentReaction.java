@@ -1,5 +1,6 @@
-package com.latcarf.model.likeModels;
+package com.latcarf.model.reaction;
 
+import com.latcarf.model.Comment;
 import com.latcarf.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,18 +8,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "likes")
+@Table(name = "commentReactions")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Like {
+public class CommentReaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String type;
+
     @ManyToOne
-    @JoinColumn
+    @JoinColumn(name = "user_id")
     User user;
+
+    @ManyToOne
+    @JoinColumn(name = "comment_id")
+    private Comment comment;
 }

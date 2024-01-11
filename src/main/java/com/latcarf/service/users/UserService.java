@@ -1,7 +1,9 @@
 package com.latcarf.service.users;
 
-import com.latcarf.model.DTO.PostDTO;
-import com.latcarf.model.DTO.UserDTO;
+import com.latcarf.convert.UserConvert;
+import com.latcarf.convert.PostConvert;
+import com.latcarf.dto.PostDTO;
+import com.latcarf.dto.UserDTO;
 import com.latcarf.model.User;
 import com.latcarf.repository.UserRepository;
 import com.latcarf.service.posts.PostService;
@@ -16,31 +18,37 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final PostService postService;
+    private final UserConvert userConvert;
+    private final PostConvert postConvert;
+
+    private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       PostService postService) {
+                       PostService postService,
+                       UserConvert userConvert, PostConvert postConvert,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.postService = postService;
+        this.userConvert = userConvert;
+        this.postConvert = postConvert;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
     public UserDTO getUserDtoById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
-        return convertToUserDTO(user);
+        return userConvert.convertToUserDTO(user);
     }
 
     public Optional<UserDTO> getUserDtoByEmail(String email) {
-        return userRepository.findByEmail(email).map(this::convertToUserDTO);
+        return userRepository.findByEmail(email).map(userConvert::convertToUserDTO);
     }
 
     public List<PostDTO> getPostDtoByUserId(Long userId) {
         return postService.getPostsByUserId(userId).stream()
-                .map(postService::convertToPostDTO)
+                .map(postConvert::convertToPostDTO)
                 .collect(Collectors.toList());
     }
 
@@ -51,6 +59,7 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
 
     public void validateUserCredentials(User user) {
         Optional<User> existingUserOpt = getUserByEmail(user.getEmail());
@@ -64,8 +73,6 @@ public class UserService {
         }
     }
 
-    private UserDTO convertToUserDTO(User user) {
-        return new UserDTO(user);
-    }
+
 }
 

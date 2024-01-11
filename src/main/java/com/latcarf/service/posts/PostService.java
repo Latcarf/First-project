@@ -1,12 +1,13 @@
 package com.latcarf.service.posts;
 
-import com.latcarf.model.DTO.PostDTO;
-import com.latcarf.model.DTO.UserDTO;
+import com.latcarf.convert.PostConvert;
+import com.latcarf.dto.PostDTO;
 import com.latcarf.model.Post;
 import com.latcarf.model.User;
 import com.latcarf.repository.postsRepository.PostRepository;
 import com.latcarf.repository.UserRepository;
 import com.latcarf.service.posts.specification.PostSpecifications;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,21 +16,21 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final PostLikeService postLikeService;
-    private final PostDislikeService postDislikeService;
+    private final PostConvert postConvert;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, PostLikeService postLikeService, PostDislikeService postDislikeService) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, PostConvert postConvert) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
-        this.postLikeService = postLikeService;
-        this.postDislikeService = postDislikeService;
+        this.postConvert = postConvert;
     }
+
 
     public void createPost(Post post, Principal principal) {
         validatePost(post);
@@ -40,54 +41,31 @@ public class PostService {
         postRepository.save(post);
     }
 
-    public List<PostDTO> searchPosts(String title, String userName, String topic, String orderByDate, LocalDateTime startDate, LocalDateTime endDate, String sortByLikesOrDislikes) {
+    public List<PostDTO> searchPosts(String title, String userName, String topic, String orderByDate, LocalDateTime startDate, LocalDateTime endDate, String sortByReaction) {
         Specification<Post> spec = Specification.where(null);
 
-        if (title != null && !title.isEmpty()) {
+        if (StringUtils.isNotBlank(title)){
             spec = spec.and(PostSpecifications.hasTitle(title));
         }
-        if (userName != null && !userName.isEmpty()) {
+        if (StringUtils.isNotBlank(userName)) {
             spec = spec.and((PostSpecifications.hasUserName(userName)));
         }
-        if (topic != null && !topic.isEmpty()) {
+        if (StringUtils.isNotBlank(topic)) {
             spec = spec.and(PostSpecifications.hasTopic(topic));
         }
-        if (startDate != null && endDate != null) {
+        if (Objects.nonNull(startDate) && Objects.nonNull(endDate)) {
             spec = spec.and(PostSpecifications.isCreatedBetween(startDate, endDate));
         }
 
-        List<Post> posts = spec == null ? postRepository.findAll() : postRepository.findAll(spec);
-        List<PostDTO> postDTOs = posts.stream().map(this::convertToPostDTO).collect(Collectors.toList());
+        List<Post> posts = Objects.isNull(spec) ? postRepository.findAll() : postRepository.findAll(spec);
+        List<PostDTO> postDTOs = posts.stream().map(postConvert::convertToPostDTO).collect(Collectors.toList());
 
-
-        if (sortByLikesOrDislikes != null) {
-            return getSortMostLikesOrDislikes(postDTOs, sortByLikesOrDislikes);
+        if (StringUtils.isNotBlank(sortByReaction)) {
+            return getMostReaction(postDTOs, sortByReaction);
         }
+
 
         return getSortByRecency(postDTOs, orderByDate);
-    }
-
-    private List<PostDTO> getSortMostLikesOrDislikes(List<PostDTO> postDTOs, String sortByLikesOrDislikes) {
-        if ("mostLikes".equals(sortByLikesOrDislikes)) {
-            postDTOs.sort(Comparator.comparing(PostDTO::getLikesCount).reversed());
-        } else if ("mostDislikes".equals(sortByLikesOrDislikes)) {
-            postDTOs.sort(Comparator.comparing(PostDTO::getDislikesCount).reversed());
-        }
-        return postDTOs;
-    }
-
-    private List<PostDTO> getSortByRecency(List<PostDTO> postDTOs, String orderByDate) {
-        if (orderByDate == null || orderByDate.isEmpty()) {
-            orderByDate = "desc";
-        }
-
-        if ("asc".equalsIgnoreCase(orderByDate)) {
-            postDTOs.sort(Comparator.comparing(PostDTO::getCreatedDateTime));
-        } else if ("desc".equalsIgnoreCase(orderByDate)) {
-            postDTOs.sort((p1, p2) -> p2.getCreatedDateTime().compareTo(p1.getCreatedDateTime()));
-        }
-
-        return postDTOs;
     }
 
 
@@ -120,7 +98,7 @@ public class PostService {
     public PostDTO getPostDtoById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Post not found with id: " + id));
-        return convertToPostDTO(post);
+        return postConvert.convertToPostDTO(post);
     }
 
     public boolean isOwner(Long postId, String userEmail) {
@@ -130,26 +108,37 @@ public class PostService {
         return post.getUser().getEmail().equals(userEmail);
     }
 
-    public PostDTO convertToPostDTO(Post post) {
-        UserDTO userDTO = convertToUserDTO(post.getUser());
-        Long likes = postLikeService.getLikesCount(post.getId());
-        Long dislikes = postDislikeService.getDislikesCount(post.getId());
-
-        return new PostDTO(post, userDTO, likes, dislikes);
+    private List<PostDTO> getMostReaction(List<PostDTO> postDTOs, String sortByReaction) {
+        if ("mostLikes".equals(sortByReaction)) {
+            postDTOs.sort(Comparator.comparing(PostDTO::getLikesCount).reversed());
+        } else if ("mostDislikes".equals(sortByReaction)) {
+            postDTOs.sort(Comparator.comparing(PostDTO::getDislikesCount).reversed());
+        }
+        return postDTOs;
     }
 
-    private UserDTO convertToUserDTO(User user) {
-        return new UserDTO(user);
+    private List<PostDTO> getSortByRecency(List<PostDTO> postDTOs, String orderByDate) {
+        if (StringUtils.isBlank(orderByDate)) {
+            orderByDate = "desc";
+        }
+
+        if ("asc".equalsIgnoreCase(orderByDate)) {
+            postDTOs.sort(Comparator.comparing(PostDTO::getCreatedDateTime));
+        } else if ("desc".equalsIgnoreCase(orderByDate)) {
+            postDTOs.sort((p1, p2) -> p2.getCreatedDateTime().compareTo(p1.getCreatedDateTime()));
+        }
+
+        return postDTOs;
     }
 
     private void validatePost(Post post) {
-        if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
+        if (StringUtils.isNotBlank(post.getTitle())) {
             throw new IllegalArgumentException("error.title.empty");
 
-        } else if (post.getTopic() == null) {
+        } else if (StringUtils.isNotBlank(post.getTopic())) {
             throw new IllegalArgumentException("error.topic.empty");
 
-        } else if (post.getContent() == null || post.getContent().trim().isEmpty()) {
+        } else if (StringUtils.isNotBlank(post.getContent())) {
             throw new IllegalArgumentException("error.content.empty");
         }
 
@@ -160,7 +149,7 @@ public class PostService {
     }
 
     private User getUserByPrincipal(Principal principal) {
-        if (principal == null) {
+        if (Objects.isNull(principal)) {
             throw new UsernameNotFoundException("Principal is not found");
         }
         String email = principal.getName();

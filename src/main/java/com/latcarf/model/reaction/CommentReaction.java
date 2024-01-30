@@ -27,4 +27,7 @@ public class CommentReaction {
     @ManyToOne
     @JoinColumn(name = "comment_id")
     private Comment comment;
+
+    public CommentReaction(String string, User user, Comment comment) {
+    }
 }

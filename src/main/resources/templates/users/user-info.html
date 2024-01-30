@@ -17,6 +17,10 @@
 <br>
 <hr>
 
+<form th:action="@{/}" method="get">
+    <button type="submit">Back to all posts</button>
+</form>
+
 <h1>Posts by <span th:text="${user.name}"></span></h1>
 
 <form th:action="@{/filter/userInfo/{userId}(userId=${user.id})}" method="get">
@@ -83,11 +87,6 @@
 <div th:if="${posts.empty}">
     <p>This user has no posts.</p>
 </div>
-
-<hr>
-<form th:action="@{/}" method="get">
-    <button type="submit">Back to all posts</button>
-</form>
 
 
 <script src="/js/reaction-button.js"> </script>

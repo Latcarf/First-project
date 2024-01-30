@@ -1,6 +1,6 @@
 package com.latcarf.model.reaction;
 
-import com.latcarf.model.Post;
+import  com.latcarf.model.Post;
 import com.latcarf.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

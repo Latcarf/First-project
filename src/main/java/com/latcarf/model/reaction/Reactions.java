@@ -1,6 +1,6 @@
 package com.latcarf.model.reaction;
 
-public enum Reaction {
+public enum Reactions {
     LIKE,
     DISLIKE;
 }

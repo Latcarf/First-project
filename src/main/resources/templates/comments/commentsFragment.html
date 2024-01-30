@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<meta id="csrf-token" name="_csrf" th:content="${_csrf.token}"/>
+<meta id="csrf-header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+<div id="current-user-email" style="display: none;" th:text="${currentUserName}"></div>
+
+
+<div th:fragment="commentsFragment(postId)">
+
+    <h3>Comments:</h3>
+    <form id="comment-form" th:action="@{'/create-comment/' + ${postId}}" method="post" novalidate>
+        <input type="text" id="comment-text" placeholder="Comment"/>
+        <button type="submit">Comment</button>
+    </form>
+
+    <div>
+        <th:block th:if="${#lists.isEmpty(allComments)}">
+            <p>No comments available.</p>
+        </th:block>
+
+        <ul class="comments-list">
+            <li th:each="comment : ${allComments}">
+                <h5>
+                    <p>
+                        <a th:if="${comment.userDTO.email == currentUserName}" th:href="@{/account}"
+                           th:text="${comment.userDTO.name}"></a>
+                        <a th:if="${comment.userDTO.email != currentUserName}"
+                           th:href="@{/user/{id}(id=${comment.userDTO.id})}"
+                           th:text="${comment.userDTO.name}"></a>
+                    </p>
+                    <span class="timeago" th:attr="datetime=${comment.createdCommentDateTime}"></span>
+                </h5>
+                <h3><p th:text="${comment.text}">Comment text</p></h3>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<script src="/js/comments.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
+<script src="/js/time-ago.js"></script>
+

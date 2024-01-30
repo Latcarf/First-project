@@ -1,12 +1,13 @@
 package com.latcarf.controller.posts;
 
+import com.latcarf.dto.CommentDTO;
 import com.latcarf.dto.PostDTO;
+import com.latcarf.model.Comment;
 import com.latcarf.model.Post;
 import com.latcarf.model.User;
+import com.latcarf.service.comment.CommentService;
 import com.latcarf.service.posts.PostService;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,11 +26,13 @@ import java.util.Objects;
 @Slf4j
 public class PostController {
 
-    private final List<String> topicsList = Arrays.asList("IT", "Study", "Sports", "Since", "History", "Cinema", "Stories", "Games", "Other");
+    private final List<String> topicsList = Arrays.asList("Question", "IT", "Study", "Sports", "Since", "History", "Cinema", "Stories", "Games", "Other");
     private final PostService postService;
+    private final CommentService commentService;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, CommentService commentService) {
         this.postService = postService;
+        this.commentService = commentService;
     }
 
 
@@ -107,21 +110,26 @@ public class PostController {
         return "redirect:/";
     }
 
-    @GetMapping("/posts/{id}")
-    public String viewPost(@PathVariable Long id, Model model, Principal principal) {
-        PostDTO postDto = postService.getPostDtoById(id);
-        boolean isOwner = Objects.nonNull(principal) && postService.isOwner(id, principal.getName());
+    @GetMapping("/posts/{postId}")
+    public String viewPost(@PathVariable Long postId, @ModelAttribute Comment comment,  Model model, Principal principal) {
+        PostDTO postDto = postService.getPostDtoById(postId);
+        boolean isOwnerPost = Objects.nonNull(principal) && postService.isOwnerPost(postId, principal.getName());
 
         model.addAttribute("post", postDto);
-        model.addAttribute("isOwner", isOwner);
+        model.addAttribute("isOwnerPost", isOwnerPost);
+
+        List<CommentDTO> allComments = commentService.getCommentsDto(postId);
+        model.addAttribute("allComments", allComments);
+        model.addAttribute("currentUserName", Objects.nonNull(principal) ? principal.getName() : null);
+
         return "posts/view";
     }
 
-    @GetMapping("edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model, Principal principal) {
-        PostDTO postDto = postService.getPostDtoById(id);
+    @GetMapping("edit/{postId}")
+    public String showEditForm(@PathVariable Long postId, Model model, Principal principal) {
+        PostDTO postDto = postService.getPostDtoById(postId);
 
-        if (postService.isOwner(id, principal.getName())) {
+        if (postService.isOwnerPost(postId, principal.getName())) {
             model.addAttribute("post", postDto);
             model.addAttribute("topics", topicsList);
             return "posts/edit";
@@ -130,13 +138,13 @@ public class PostController {
         }
     }
 
-    @PostMapping("/update/{id}")
-    public String updatePost(@PathVariable Long id, @ModelAttribute Post post, BindingResult bindingResult, Model model) {
+    @PostMapping("/update/{postId}")
+    public String updatePost(@PathVariable Long postId, @ModelAttribute Post post, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             return "authentication/register";
         }
         try {
-            postService.updatePost(id, post);
+            postService.updatePost(postId, post);
         } catch (IllegalArgumentException e) {
             errorValidation(e.getMessage(), bindingResult);
 
@@ -144,12 +152,12 @@ public class PostController {
             model.addAttribute("topics", topicsList);
             return "posts/edit";
         }
-        return "redirect:/posts/" + id;
+        return "redirect:/posts/" + postId;
     }
 
-    @PostMapping("/delete/post/{id}")
-    public String deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    @PostMapping("/delete/post/{postId}")
+    public String deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
         return "redirect:/";
     }
 

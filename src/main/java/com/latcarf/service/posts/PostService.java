@@ -32,15 +32,6 @@ public class PostService {
     }
 
 
-    public void createPost(Post post, Principal principal) {
-        validatePost(post);
-
-        User user = getUserByPrincipal(principal);
-        post.setUser(user);
-
-        postRepository.save(post);
-    }
-
     public List<PostDTO> searchPosts(String title, String userName, String topic, String orderByDate, LocalDateTime startDate, LocalDateTime endDate, String sortByReaction) {
         Specification<Post> spec = Specification.where(null);
 
@@ -68,8 +59,17 @@ public class PostService {
         return getSortByRecency(postDTOs, orderByDate);
     }
 
+    public void createPost(Post post, Principal principal) throws IllegalArgumentException{
+        User user = getUserByPrincipal(principal);
+        post.setUser(user);
 
-    public void updatePost(Long id, Post updatedPost) {
+        validatePost(post);
+
+        postRepository.save(post);
+    }
+
+
+    public void updatePost(Long id, Post updatedPost) throws IllegalArgumentException{
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Post not found with id: " + id));
 
@@ -101,7 +101,7 @@ public class PostService {
         return postConvert.convertToPostDTO(post);
     }
 
-    public boolean isOwner(Long postId, String userEmail) {
+    public boolean isOwnerPost(Long postId, String userEmail) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found post: " + postId));
 
@@ -131,14 +131,14 @@ public class PostService {
         return postDTOs;
     }
 
-    private void validatePost(Post post) {
-        if (StringUtils.isNotBlank(post.getTitle())) {
+    private void validatePost(Post post) throws IllegalArgumentException {
+        if (StringUtils.isBlank(post.getTitle())) {
             throw new IllegalArgumentException("error.title.empty");
 
-        } else if (StringUtils.isNotBlank(post.getTopic())) {
+        } else if (StringUtils.isBlank(post.getTopic())) {
             throw new IllegalArgumentException("error.topic.empty");
 
-        } else if (StringUtils.isNotBlank(post.getContent())) {
+        } else if (StringUtils.isBlank(post.getContent())) {
             throw new IllegalArgumentException("error.content.empty");
         }
 

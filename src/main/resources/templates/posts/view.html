@@ -7,18 +7,18 @@
 </head>
 <body>
 
-
 <h1 th:text="${post.title}">Post Title</h1>
 <h5>
     <p>The post was created: <span th:text="${#temporals.format(post.createdDateTime, 'dd-MM-yyyy HH:mm')}"></span></p>
 
     <p>Author
-        <a th:if="${isOwner}" th:href="@{/account}" th:text="${post.user.name}"></a>
-        <a th:if="${!isOwner}" th:href="@{/user/{id}(id=${post.user.id})}" th:text="${post.user.name}"></a></p>
+        <a th:if="${isOwnerPost}" th:href="@{/account}" th:text="${post.getUserDTO.name}"></a>
+        <a th:if="${!isOwnerPost}" th:href="@{/user/{id}(id=${post.getUserDTO.id})}" th:text="${post.getUserDTO.name}"></a></p>
 
     <p>Topic: <span th:text="${post.topic}">Topic</span></p>
 </h5>
-<h3><p th:text="${post.content}">Post Content</p></h3>
+
+<h2><p th:text="${post.content}">Post Content</p></h2>
 
 <button class="like-btn" th:data-post-id="${post.id}">👍🏿</button>
 <a style="margin-right: 20px;" th:href="@{view-likes/post/{id}(id=${post.id})}">
@@ -28,8 +28,9 @@
 <button class="dislike-btn" th:data-post-id="${post.id}">👎🏿</button>
 <span th:id="'dislikes-count-' + ${post.id}" th:text="${post.dislikesCount}"></span>
 
-<div th:if="${isOwner}">
-    <hr>
+<hr>
+
+<div th:if="${isOwnerPost}">
     <form th:action="@{/edit/{id}(id=${post.id})}" method="get">
         <button type="submit">Edit</button>
     </form>
@@ -38,15 +39,26 @@
     <form th:action="@{/delete/post/{id}(id=${post.id})}" method="post">
         <button type="submit">Delete</button>
     </form>
+    <hr>
 </div>
 
-<hr>
 <form th:action="@{/}" method="get">
     <button type="submit">Back to all posts</button>
 </form>
 
+<div id="current-user-email" style="display: none;" th:text="${currentUserName}"></div>
+<hr>
+<div id="comments-section">
+    <div th:replace="~{comments/commentsFragment :: commentsFragment(${post.id})}"></div>
+</div>
+
 
 <script src="/js/reaction-button.js"></script>
+
+<script src="/js/comments.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
+<script src="/js/time-ago.js"></script>
 
 </body>
 </html>

@@ -10,20 +10,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class PostConvert {
     private final PostReactionService postReactionService;
+    private final UserConvert userConvert;
 
-    public PostConvert(PostReactionService postLikeService) {
+    public PostConvert(PostReactionService postLikeService, UserConvert userConvert) {
         this.postReactionService = postLikeService;
+        this.userConvert = userConvert;
     }
 
     public PostDTO convertToPostDTO(Post post) {
-        UserDTO userDTO = convertToUserDTO(post.getUser());
+        UserDTO userDTO = userConvert.convertToUserDTO(post.getUser());
         Long likes = postReactionService.getLikesCount(post.getId());
         Long dislikes = postReactionService.getDislikesCount(post.getId());
 
         return new PostDTO(post, userDTO, likes, dislikes);
     }
 
-    public UserDTO convertToUserDTO(User user) {
-        return new UserDTO(user);
-    }
 }

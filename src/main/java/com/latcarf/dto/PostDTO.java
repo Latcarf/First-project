@@ -18,7 +18,7 @@ public class PostDTO {
     private LocalDateTime createdDateTime;
     private Long likesCount;
     private Long dislikesCount;
-    private UserDTO user;
+    private UserDTO userDTO;
 
     public PostDTO(Post post, UserDTO userDTO, Long likesCount, Long dislikesCount) {
         this.id = post.getId();
@@ -28,6 +28,6 @@ public class PostDTO {
         this.createdDateTime = post.getCreatedDateTime();
         this.likesCount = likesCount;
         this.dislikesCount = dislikesCount;
-        this.user = userDTO;
+        this.userDTO = userDTO;
     }
 }

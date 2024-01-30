@@ -1,6 +1,7 @@
 package com.latcarf.model;
 
 import com.latcarf.model.reaction.CommentReaction;
+import com.latcarf.model.reaction.PostReaction;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,16 +36,14 @@ public class Comment {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "commentReaction_id")
-    private CommentReaction commentReaction;
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Comment parentComment;
 
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> replies;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentReaction> reactions;
     @PrePersist
     protected void onCreate() {
         createdCommentDateTime = LocalDateTime.now();

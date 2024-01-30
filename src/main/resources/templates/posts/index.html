@@ -82,10 +82,11 @@
             <p><span class="timeago" th:attr="datetime=${post.createdDateTime}"></span></p>
 
             <p>Author
-                <a th:if="${post.user.email == currentUserEmail}" th:href="@{/account}"
-                   th:text="${post.user.name}"></a>
-                <a th:if="${post.user.email != currentUserEmail}" th:href="@{/user/{id}(id=${post.user.id})}"
-                   th:text="${post.user.name}"></a></p>
+                <a th:if="${post.getUserDTO.email == currentUserEmail}" th:href="@{/account}"
+                   th:text="${post.getUserDTO.name}"></a>
+                <a th:if="${post.getUserDTO.email != currentUserEmail}" th:href="@{/user/{id}(id=${post.getUserDTO.id})}"
+                   th:text="${post.getUserDTO.name}"></a>
+            </p>
 
             <p>Topic: <span th:text="${post.topic}">Topic</span></p>
         </h5>

@@ -32,10 +32,10 @@ public class CommentService {
     }
 
 
-    public Comment createComment(Comment comment, Principal principal, Long postId) {
+    public void createComment(Comment comment, Principal principal, Long postId) {
         comment.setUser(getUserByPrincipal(principal));
         comment.setPost(getPostById(postId));
-        return commentRepository.save(comment);
+        commentRepository.save(comment);
     }
 
     public List<CommentDTO> getCommentsDto(Long id) {
@@ -43,8 +43,8 @@ public class CommentService {
         return comments.stream().map(commentConvert::convertToCommentDTO).toList();
     }
 
-    public CommentDTO getCommentDto(Comment comment) {
-        return commentConvert.convertToCommentDTO(comment);
+    public void deleteComment(Long commentId) {
+        commentRepository.deleteById(commentId);
     }
 
     private Post getPostById(Long postId) {

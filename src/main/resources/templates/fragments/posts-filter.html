@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<form th:action="@{/filter/userInfo/{userId}(userId=${user.id})}" method="get">
+    <h4>Filters</h4>
+
+    <input type="text" name="title" placeholder="Search by title" th:value="${searchTitle}"/>
+
+    <br>
+    <br>
+
+    <select name="topic">
+        <option value="">All Topics</option>
+        <option th:each="topic : ${topics}" th:value="${topic}" th:text="${topic}"
+                th:selected="${searchTopic != null and topic.equals(searchTopic)}"></option>
+    </select>
+
+    <select name="orderByDate">
+        <option value="desc" th:selected="${orderByDate == 'desc'}">Newest First</option>
+        <option value="asc" th:selected="${orderByDate == 'asc'}">Oldest First</option>
+    </select>
+
+    <br>
+    <br>
+
+    <input type="date" id="startDate" name="startDate" th:value="${searchStartDate}">
+    <input type="date" id="endDate" name="endDate" th:value="${searchEndDate}">
+
+    <br>
+    <br>
+
+    <select name="sortByLikesOrDislikes">
+        <option value="">Likes/Dislikes</option>
+        <option value="mostLikes" th:selected="${sortByLikesOrDislikes == 'mostLikes'}">Most Likes</option>
+        <option value="mostDislikes" th:selected="${sortByLikesOrDislikes == 'mostDislikes'}">Most Dislikes</option>
+    </select>
+
+    <br>
+    <br>
+
+    <button type="submit">Search</button>
+</form>
+</html>

@@ -1,5 +1,7 @@
 package com.latcarf.service.posts;
 
+import com.latcarf.convert.UserConvert;
+import com.latcarf.dto.UserDTO;
 import com.latcarf.model.Post;
 import com.latcarf.model.User;
 import com.latcarf.model.reaction.PostReaction;
@@ -19,12 +21,13 @@ public class PostReactionService {
     private final PostReactionRepository postReactionRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final UserConvert userConvert;
 
-    public PostReactionService(PostReactionRepository postLikeRepository, UserRepository userRepository, PostRepository postRepository) {
+    public PostReactionService(PostReactionRepository postLikeRepository, UserRepository userRepository, PostRepository postRepository, UserConvert userConvert) {
         this.postReactionRepository = postLikeRepository;
-
         this.userRepository = userRepository;
         this.postRepository = postRepository;
+        this.userConvert = userConvert;
     }
 
     public void toggleLike(Long postId, String username) {
@@ -71,14 +74,12 @@ public class PostReactionService {
         return postReactionRepository.countByTypeAndPostId(Reactions.DISLIKE.toString(), postId);
     }
 
-    public List<User> getAllUserLikes(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new UsernameNotFoundException("Post not found by: " + postId));
-
-        return postReactionRepository.findByPost(post).stream()
+    public List<UserDTO> getAllUserLikes(Long postId) {
+        List<PostReaction> reactions = postReactionRepository.findByTypeAndPostId(Reactions.LIKE.toString(), postId);
+        return reactions.stream()
                 .map(PostReaction::getUser)
-                .collect(Collectors.toList());
+                .map(userConvert::convertToUserDTO)
+                .toList();
     }
-
 
 }

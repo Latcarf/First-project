@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <link rel="icon" href="/images/Fractal-Symmetric-Icon-15-removebg-preview.png" type="image/x-icon">
+<head th:replace="fragments/main-header :: main-header">
     <title>Latcarf</title>
-    <meta id="csrf-token" name="_csrf" th:content="${_csrf.token}"/>
-    <meta id="csrf-header" name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
 
@@ -73,43 +70,39 @@
     <button type="submit">Search</button>
 </form>
 
+<div>
+    <th:block th:if="${#lists.isEmpty(posts)}">
+        <p>No posts available.</p>
+    </th:block>
 
-<ul>
-    <li th:each="post : ${posts}">
-        <hr>
-        <h2><a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">Post Title</a></h2>
-        <h5>
-            <p><span class="timeago" th:attr="datetime=${post.createdDateTime}"></span></p>
+    <ul>
+        <li th:each="post : ${posts}">
+            <hr>
+            <h2><a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">Post Title</a></h2>
+            <h5>
+                <p>
+                    <a th:if="${post.getUserDTO.email == currentUserEmail}" th:href="@{/account}"
+                       th:text="${post.getUserDTO.name}"></a>
+                    <a th:if="${post.getUserDTO.email != currentUserEmail}" th:href="@{/user/{id}(id=${post.getUserDTO.id})}"
+                       th:text="${post.getUserDTO.name}"></a>
 
-            <p>Author
-                <a th:if="${post.getUserDTO.email == currentUserEmail}" th:href="@{/account}"
-                   th:text="${post.getUserDTO.name}"></a>
-                <a th:if="${post.getUserDTO.email != currentUserEmail}" th:href="@{/user/{id}(id=${post.getUserDTO.id})}"
-                   th:text="${post.getUserDTO.name}"></a>
-            </p>
+                    <span class="timeago" th:attr="datetime=${post.createdDateTime}"></span>
+                </p>
 
-            <p>Topic: <span th:text="${post.topic}">Topic</span></p>
-        </h5>
-        <h4><p th:text="${#strings.abbreviate(post.content, 70)}">Post content preview</p></h4>
+                <p>Topic: <span th:text="${post.topic}">Topic</span></p>
+            </h5>
+            <h4><p th:text="${#strings.abbreviate(post.content, 70)}">Post content preview</p></h4>
 
-        <button class="like-btn" th:data-post-id="${post.id}">👍🏿</button>
-        <a style="margin-right: 20px;" th:href="@{view-likes/post/{id}(id=${post.id})}">
-            <span th:id="'likes-count-' + ${post.id}" th:text="${post.likesCount}"></span>
-        </a>
-
-        <button class="dislike-btn" th:data-post-id="${post.id}">👎🏿</button>
-        <span th:id="'dislikes-count-' + ${post.id}" th:text="${post.dislikesCount}"></span>
-    </li>
-</ul>
-<div th:if="${posts.empty}">
-    <p>No posts available.</p>
+            <div th:replace="~{fragments/post-like-dislike-fragment :: post(${post})}"></div>
+        </li>
+    </ul>
 </div>
 
 
-<script src="/js/reaction-button.js"> </script>
+<script src="/js/reaction-button.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
-<script src="/js/time-ago.js"> </script>
+<script src="/js/time-ago.js"></script>
 
 </body>
 </html>

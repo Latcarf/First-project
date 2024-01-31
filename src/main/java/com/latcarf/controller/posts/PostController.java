@@ -46,7 +46,6 @@ public class PostController {
                             @RequestParam(required = false) String sortByLikesOrDislikes,
                             Model model, Principal principal) {
 
-
         model.addAttribute("currentUserEmail", Objects.nonNull(principal) ? principal.getName() : null);
         configurePostFiltering(title, userName, topic, orderByDate, startDate, endDate, sortByLikesOrDislikes, model);
 
@@ -98,7 +97,6 @@ public class PostController {
 
     @PostMapping("/create")
     public String createPost(@ModelAttribute Post post, BindingResult bindingResult, Model model, Principal principal) {
-        log.info("Attempting to create post by user: {}", principal.getName());
         try {
             postService.createPost(post, principal);
         } catch (IllegalArgumentException e) {
@@ -111,13 +109,14 @@ public class PostController {
     }
 
     @GetMapping("/posts/{postId}")
-    public String viewPost(@PathVariable Long postId, @ModelAttribute Comment comment,  Model model, Principal principal) {
+    public String viewPost(@PathVariable Long postId,  Model model, Principal principal) {
         PostDTO postDto = postService.getPostDtoById(postId);
         boolean isOwnerPost = Objects.nonNull(principal) && postService.isOwnerPost(postId, principal.getName());
 
         model.addAttribute("post", postDto);
         model.addAttribute("isOwnerPost", isOwnerPost);
 
+        // Loading comments onto a page in the Post Controller, to avoid JS code
         List<CommentDTO> allComments = commentService.getCommentsDto(postId);
         model.addAttribute("allComments", allComments);
         model.addAttribute("currentUserName", Objects.nonNull(principal) ? principal.getName() : null);
@@ -171,6 +170,7 @@ public class PostController {
         model.addAttribute("topics", topicsList);
 
         model.addAttribute("searchTitle", title);
+        model.addAttribute("searchUserName", userName);
         model.addAttribute("searchTopic", topic);
         model.addAttribute("searchStartDate", startDate);
         model.addAttribute("searchEndDate", endDate);

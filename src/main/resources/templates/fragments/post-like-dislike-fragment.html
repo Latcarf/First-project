@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<div th:fragment="post(post)">
+
+    <button class="like-btn" th:data-post-id="${post.id}">👍🏿</button>
+    <a style="margin-right: 20px;" th:href="@{/view-likes/post/{postId}(postId=${post.id})}">
+        <span th:id="'likes-count-' + ${post.id}" th:text="${post.likesCount}"></span>
+    </a>
+
+    <button class="dislike-btn" th:data-post-id="${post.id}">👎🏿</button>
+    <span th:id="'dislikes-count-' + ${post.id}" th:text="${post.dislikesCount}"></span>
+</div>

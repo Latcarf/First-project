@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.security.Principal;
+import java.util.Objects;
 
 @Controller
 public class PostReactionController {
@@ -36,8 +37,9 @@ public class PostReactionController {
         return ResponseEntity.ok(likesCount);
     }
     @GetMapping("view-likes/post/{postId}")
-    public String viewLikesPost(@PathVariable Long postId, Model model) {
+    public String viewLikesPost(@PathVariable Long postId, Model model, Principal principal) {
         model.addAttribute("allUserLikes", postReactionService.getAllUserLikes(postId));
+        model.addAttribute("currentUserName", Objects.nonNull(principal) ? principal.getName() : null);
 
         return "posts/post-likes";
     }

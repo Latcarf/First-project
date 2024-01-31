@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="fragments/main-header :: main-header">
     <title>All likes</title>
 </head>
 <body>
@@ -12,15 +12,22 @@
 <h1>All the people who liked it</h1>
 <hr>
 
-<ul>
-    <li th:each="user : ${allUserLikes}">
-        <h3> <a th:href="@{/user/{id}(id=${user.id})}" th:text="${user.name}"></a> </h3>
-        <hr>
-    </li>
-</ul>
+<div>
+    <th:block th:if="${#lists.isEmpty(allUserLikes)}">
+        <h3>No one has ever liked this.</h3>
+    </th:block>
 
-<div th:if="${allUserLikes.empty}">
-    <h3>No one has ever liked this.</h3>
+    <ul>
+        <li th:each="user : ${allUserLikes}">
+            <h3>
+                <a th:if="${user.email == currentUserName}" th:href="@{/account}"
+                   th:text="${user.name}"></a>
+                <a th:if="${user.email != currentUserName}" th:href="@{/user/{id}(id=${user.id})}"
+                   th:text="${user.name}"></a>
+            </h3>
+            <hr>
+        </li>
+    </ul>
 </div>
 
 </body>

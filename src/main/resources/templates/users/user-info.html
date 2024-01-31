@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="fragments/main-header :: main-header">
     <title>User Info</title>
     <meta id="csrf-token" name="_csrf" th:content="${_csrf.token}"/>
     <meta id="csrf-header" name="_csrf_header" th:content="${_csrf.headerName}"/>
@@ -23,76 +23,34 @@
 
 <h1>Posts by <span th:text="${user.name}"></span></h1>
 
-<form th:action="@{/filter/userInfo/{userId}(userId=${user.id})}" method="get">
-    <h4>Filters</h4>
+<div th:replace="~{fragments/posts-filter}"></div>
 
-    <input type="text" name="title" placeholder="Search by title" th:value="${searchTitle}"/>
+<div>
+    <th:block th:if="${#lists.isEmpty(posts)}">
+        <p>This user has no posts.</p>
+    </th:block>
 
-    <br>
-    <br>
+    <ul>
+        <li th:each="post : ${posts}">
+            <hr>
+            <h2><a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">Post Title</a></h2>
+            <h5>
+                <p><span class="timeago" th:attr="datetime=${post.createdDateTime}"></span></p>
 
-    <select name="topic">
-        <option value="">All Topics</option>
-        <option th:each="topic : ${topics}" th:value="${topic}" th:text="${topic}"
-                th:selected="${searchTopic != null and topic.equals(searchTopic)}"></option>
-    </select>
+                <p>Topic: <span th:text="${post.topic}">Topic</span></p>
+            </h5>
+            <h4><p th:text="${#strings.abbreviate(post.content, 70)}">Post content preview</p></h4>
 
-    <select name="orderByDate">
-        <option value="desc" th:selected="${orderByDate == 'desc'}">Newest First</option>
-        <option value="asc" th:selected="${orderByDate == 'asc'}">Oldest First</option>
-    </select>
-
-    <br>
-    <br>
-
-    <input type="date" id="startDate" name="startDate" th:value="${searchStartDate}">
-    <input type="date" id="endDate" name="endDate" th:value="${searchEndDate}">
-
-    <br>
-    <br>
-
-    <select name="sortByLikesOrDislikes">
-        <option value="">Likes/Dislikes</option>
-        <option value="mostLikes" th:selected="${sortByLikesOrDislikes == 'mostLikes'}">Most Likes</option>
-        <option value="mostDislikes" th:selected="${sortByLikesOrDislikes == 'mostDislikes'}">Most Dislikes</option>
-    </select>
-
-    <br>
-    <br>
-
-    <button type="submit">Search</button>
-</form>
-
-<ul>
-    <li th:each="post : ${posts}">
-        <hr>
-        <h2><a th:href="@{/posts/{id}(id=${post.id})}" th:text="${post.title}">Post Title</a></h2>
-        <h5>
-            <p><span class="timeago" th:attr="datetime=${post.createdDateTime}"></span></p>
-
-            <p>Topic: <span th:text="${post.topic}">Topic</span></p>
-        </h5>
-        <h4><p th:text="${#strings.abbreviate(post.content, 70)}">Post content preview</p></h4>
-
-        <button class="like-btn" th:data-post-id="${post.id}">👍🏿</button>
-        <a style="margin-right: 20px;" th:href="@{view-likes/post/{id}(id=${post.id})}">
-            <span th:id="'likes-count-' + ${post.id}" th:text="${post.likesCount}"></span>
-        </a>
-
-        <button class="dislike-btn" th:data-post-id="${post.id}">👎🏿</button>
-        <span th:id="'dislikes-count-' + ${post.id}" th:text="${post.dislikesCount}"></span>
-    </li>
-</ul>
-
-<div th:if="${posts.empty}">
-    <p>This user has no posts.</p>
+            <div th:replace="~{fragments/post-like-dislike-fragment :: post(${post})}"></div>
+        </li>
+    </ul>
 </div>
 
 
-<script src="/js/reaction-button.js"> </script>
+<script src="/js/reaction-button.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
-<script src="/js/time-ago.js"> </script>
+<script src="/js/time-ago.js"></script>
 
 </body>
 </html>

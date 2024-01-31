@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:replace="fragments/main-header :: main-header">
     <title th:text="${post.title}">Post Title</title>
     <meta id="csrf-token" name="_csrf" th:content="${_csrf.token}"/>
     <meta id="csrf-header" name="_csrf_header" th:content="${_csrf.headerName}"/>
@@ -13,20 +13,15 @@
 
     <p>Author
         <a th:if="${isOwnerPost}" th:href="@{/account}" th:text="${post.getUserDTO.name}"></a>
-        <a th:if="${!isOwnerPost}" th:href="@{/user/{id}(id=${post.getUserDTO.id})}" th:text="${post.getUserDTO.name}"></a></p>
+        <a th:if="${!isOwnerPost}" th:href="@{/user/{id}(id=${post.getUserDTO.id})}"
+           th:text="${post.getUserDTO.name}"></a></p>
 
     <p>Topic: <span th:text="${post.topic}">Topic</span></p>
 </h5>
 
 <h2><p th:text="${post.content}">Post Content</p></h2>
 
-<button class="like-btn" th:data-post-id="${post.id}">👍🏿</button>
-<a style="margin-right: 20px;" th:href="@{view-likes/post/{id}(id=${post.id})}">
-    <span th:id="'likes-count-' + ${post.id}" th:text="${post.likesCount}"></span>
-</a>
-
-<button class="dislike-btn" th:data-post-id="${post.id}">👎🏿</button>
-<span th:id="'dislikes-count-' + ${post.id}" th:text="${post.dislikesCount}"></span>
+<div th:replace="~{fragments/post-like-dislike-fragment :: post(${post})}"></div>
 
 <hr>
 
@@ -46,16 +41,11 @@
     <button type="submit">Back to all posts</button>
 </form>
 
-<div id="current-user-email" style="display: none;" th:text="${currentUserName}"></div>
 <hr>
-<div id="comments-section">
-    <div th:replace="~{comments/commentsFragment :: commentsFragment(${post.id})}"></div>
-</div>
+<div th:replace="~{fragments/comments-fragment :: postId(${post.id})}"></div>
 
 
 <script src="/js/reaction-button.js"></script>
-
-<script src="/js/comments.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
 <script src="/js/time-ago.js"></script>

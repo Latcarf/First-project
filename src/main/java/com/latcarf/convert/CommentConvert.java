@@ -7,6 +7,10 @@ import com.latcarf.model.Comment;
 import com.latcarf.service.comment.CommentReactionService;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 @Component
 public class CommentConvert {
     private final CommentReactionService commentReactionService;
@@ -25,6 +29,15 @@ public class CommentConvert {
         Long likes = commentReactionService.getLikesCount(comment.getId());
         Long dislikes = commentReactionService.getDislikesCount(comment.getId());
 
-        return new CommentDTO(comment, postDTO, userDTO, likes, dislikes);
+        CommentDTO commentDTO = new CommentDTO(comment, postDTO, userDTO, likes, dislikes);
+
+        if (Objects.nonNull(comment.getReplies())) {
+            List<CommentDTO> replyCommentsDTO = comment.getReplies().stream()
+                    .map(this::convertToCommentDTO)
+                    .collect(Collectors.toList());
+            commentDTO.setReplies(replyCommentsDTO);
+        }
+
+        return commentDTO;
     }
 }

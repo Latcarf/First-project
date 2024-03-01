@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<div th:fragment="comment(comment)">
+    <button class="like-comment-btn" th:data-comment-id="${comment.id}">👍🏿</button>
+    <span style="margin-right: 20px;" th:id="'likes-count-comment-' + ${comment.id}" th:text="${comment.likesCount}"></span>
+
+    <button class="dislike-comment-btn" th:data-comment-id="${comment.id}">👎🏿</button>
+    <span th:id="'dislikes-count-comment-' + ${comment.id}" th:text="${comment.dislikesCount}"></span>
+</div>

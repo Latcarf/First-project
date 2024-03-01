@@ -1,6 +1,5 @@
-package com.latcarf.repository.postsRepository;
+package com.latcarf.repository.posts;
 
-import com.latcarf.dto.UserDTO;
 import com.latcarf.model.Post;
 import com.latcarf.model.User;
 import com.latcarf.model.reaction.PostReaction;

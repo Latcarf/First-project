@@ -7,14 +7,13 @@ import com.latcarf.model.User;
 import com.latcarf.model.reaction.PostReaction;
 import com.latcarf.model.reaction.Reactions;
 import com.latcarf.repository.UserRepository;
-import com.latcarf.repository.postsRepository.PostReactionRepository;
-import com.latcarf.repository.postsRepository.PostRepository;
+import com.latcarf.repository.posts.PostReactionRepository;
+import com.latcarf.repository.posts.PostRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PostReactionService {

@@ -5,14 +5,12 @@ import com.latcarf.model.User;
 import com.latcarf.model.reaction.CommentReaction;
 import com.latcarf.model.reaction.Reactions;
 import com.latcarf.repository.UserRepository;
-import com.latcarf.repository.commentsRepository.CommentReactionRepository;
-import com.latcarf.repository.commentsRepository.CommentRepository;
+import com.latcarf.repository.comments.CommentReactionRepository;
+import com.latcarf.repository.comments.CommentRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CommentReactionService {
@@ -46,7 +44,7 @@ public class CommentReactionService {
 
     public void toggleDislike(Long commentId, String username) {
         User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found by: " + username));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new UsernameNotFoundException("Comment not found by: " + commentId));
 
@@ -69,7 +67,4 @@ public class CommentReactionService {
     public Long getDislikesCount(Long commentId) {
         return commentReactionRepository.countByTypeAndCommentId(Reactions.DISLIKE.toString(), commentId);
     }
-
-
-
 }

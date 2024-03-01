@@ -18,8 +18,8 @@ public class CommentDTO {
     private LocalDateTime createdCommentDateTime;
     private PostDTO postDTO;
     private UserDTO userDTO;
-    private Comment parentComment;
-    private List<Comment> replies;
+    private CommentDTO parentComment;
+    private List<CommentDTO> replies;
     private Long likesCount;
     private Long dislikesCount;
 
@@ -30,9 +30,8 @@ public class CommentDTO {
         this.createdCommentDateTime = comment.getCreatedCommentDateTime();
         this.postDTO = postDTO;
         this.userDTO = userDTO;
-        this.parentComment = comment.getParentComment();
-        this.replies = comment.getReplies();
         this.likesCount = likesCount;
         this.dislikesCount = dislikesCount;
     }
 }
+

@@ -28,6 +28,9 @@ public class CommentReaction {
     @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    public CommentReaction(String string, User user, Comment comment) {
+    public CommentReaction(String type, User user, Comment comment) {
+        this.type = type;
+        this.user = user;
+        this.comment = comment;
     }
 }

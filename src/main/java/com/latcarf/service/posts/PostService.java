@@ -4,7 +4,7 @@ import com.latcarf.convert.PostConvert;
 import com.latcarf.dto.PostDTO;
 import com.latcarf.model.Post;
 import com.latcarf.model.User;
-import com.latcarf.repository.postsRepository.PostRepository;
+import com.latcarf.repository.posts.PostRepository;
 import com.latcarf.repository.UserRepository;
 import com.latcarf.service.posts.specification.PostSpecifications;
 import org.apache.commons.lang3.StringUtils;

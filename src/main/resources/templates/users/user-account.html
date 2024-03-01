@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/main-header :: main-header">
+<head>
     <title>My account</title>
-    <meta id="csrf-token" name="_csrf" th:content="${_csrf.token}"/>
-    <meta id="csrf-header" name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <th:block th:insert="~{fragments/main-header :: main-header}"></th:block>
 </head>
 <body>
 
@@ -57,13 +56,13 @@
             </h5>
             <h4><p th:text="${#strings.abbreviate(post.content, 70)}">Post content preview</p></h4>
 
-            <div th:replace="~{fragments/post-like-dislike-fragment :: post(${post})}"></div>
+            <div th:replace="~{fragments/post-reaction-fragment :: post(${post})}"></div>
         </li>
     </ul>
 </div>
 
 
-<script src="/js/reaction-button.js"></script>
+<script src="/js/post-reaction-button.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
 <script src="/js/time-ago.js"></script>

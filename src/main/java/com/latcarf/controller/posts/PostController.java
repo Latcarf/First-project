@@ -109,7 +109,7 @@ public class PostController {
     }
 
     @GetMapping("/posts/{postId}")
-    public String viewPost(@PathVariable Long postId,  Model model, Principal principal) {
+    public String viewPost(@PathVariable Long postId, Model model, Principal principal) {
         PostDTO postDto = postService.getPostDtoById(postId);
         boolean isOwnerPost = Objects.nonNull(principal) && postService.isOwnerPost(postId, principal.getName());
 
@@ -118,6 +118,8 @@ public class PostController {
 
         // Loading comments onto a page in the Post Controller, to avoid JS code
         List<CommentDTO> allComments = commentService.getCommentsDto(postId);
+        model.addAttribute("comment", new Comment());
+        model.addAttribute("replyComment", new Comment());
         model.addAttribute("allComments", allComments);
         model.addAttribute("currentUserName", Objects.nonNull(principal) ? principal.getName() : null);
 
@@ -160,7 +162,7 @@ public class PostController {
         return "redirect:/";
     }
 
-    private void configurePostFiltering(String title, String userName, String topic, String orderByDate, LocalDate startDate, LocalDate endDate,String sortByLikesOrDislikes, Model model) {
+    private void configurePostFiltering(String title, String userName, String topic, String orderByDate, LocalDate startDate, LocalDate endDate, String sortByLikesOrDislikes, Model model) {
         LocalDateTime startDateTime = Objects.nonNull(startDate) ? startDate.atStartOfDay() : null;
         LocalDateTime endDateTime = Objects.nonNull(endDate) ? endDate.atTime(23, 59, 59) : null;
 

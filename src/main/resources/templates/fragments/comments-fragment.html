@@ -5,8 +5,9 @@
 <div th:fragment="postId(postId)">
 
     <h3>Comments:</h3>
-    <form th:action="@{'/create-comment/' + ${postId}}" method="post">
-        <input type="text" id="comment-text" name="text" placeholder="Comment"/>
+    <form th:action="@{'/create-comment/' + ${postId}}" th:object="${comment}" method="post">
+        <input type="text" id="text" name="text" placeholder="Comment"/>
+        <div th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></div>
         <button type="submit">Comment</button>
     </form>
 
@@ -21,7 +22,8 @@
                 <h5>
                     <a th:if="${comment.userDTO.email == currentUserName}" th:href="@{/account}"
                        th:text="${comment.userDTO.name}"></a>
-                    <a th:if="${comment.userDTO.email != currentUserName}" th:href="@{/user/{id}(id=${comment.userDTO.id})}"
+                    <a th:if="${comment.userDTO.email != currentUserName}"
+                       th:href="@{/user/{id}(id=${comment.userDTO.id})}"
                        th:text="${comment.userDTO.name}"></a>
 
                     <span class="timeago" th:attr="datetime=${comment.createdCommentDateTime}"></span>
@@ -35,12 +37,53 @@
 
                 </h5>
                 <h3><p th:text="${comment.text}">Comment text</p></h3>
+                <div th:replace="~{fragments/comment-reaction-fragment :: comment(${comment})}"></div>
+
+
+                <div>
+                    <form th:action="@{'/create-reply-comment/' + ${comment.id} + '/' + ${postId}}"
+                          th:object="${replyComment}" method="post">
+                        <input type="text" id="text" name="text" placeholder="Reply to this comment..."/>
+                        <div th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></div>
+                        <button type="submit">Reply</button>
+                    </form>
+
+                    <ul>
+                        <li th:each="replyComment : ${comment.replies}">
+                            <h5>
+                                <a th:if="${replyComment.userDTO.email == currentUserName}" th:href="@{/account}"
+                                   th:text="${replyComment.userDTO.name}"></a>
+                                <a th:if="${replyComment.userDTO.email != currentUserName}"
+                                   th:href="@{/user/{id}(id=${replyComment.userDTO.id})}"
+                                   th:text="${replyComment.userDTO.name}"></a>
+
+                                <span class="timeago" th:attr="datetime=${replyComment.createdCommentDateTime}"></span>
+
+                                <div th:if="${replyComment.userDTO.email == currentUserName}">
+                                    <form th:action="@{/delete/comment/{commentId}(commentId=${replyComment.id})}"
+                                          method="post">
+                                        <input type="hidden" name="postId" th:value="${postId}"/>
+                                        <button type="submit">Delete comment</button>
+                                    </form>
+                                </div>
+
+                            </h5>
+                            <h3><p th:text="${replyComment.text}">Comment text</p></h3>
+                            <div th:replace="~{fragments/comment-reaction-fragment :: comment(${replyComment})}"></div>
+                        </li>
+                    </ul>
+                </div>
+                <hr>
             </li>
         </ul>
     </div>
 
 </div>
 
+<script src="/js/post-reaction-button.js"></script>
+<script src="/js/comment-reaction-button.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.min.js"></script>
 <script src="/js/time-ago.js"></script>
+
 
